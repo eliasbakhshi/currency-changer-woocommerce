@@ -17,7 +17,7 @@ jQuery(function ($) {
         var newCurrencyValue = "";
 
 
-        /* Add thousand symbol to the price */
+        /* Add thousand symbol to the price ---------------------------------------------------------  */
         function addThousand(number, decimalSymbol, decimalsNumber) {
             number = number.toString();
             decimalSymbol = decimalSymbol || "."; // Default to period as decimal separator
@@ -29,26 +29,24 @@ jQuery(function ($) {
             return output;
         }
 
+        /* When user choose a currency  --------------------------------------------------------- */
         function changeCurrency() {
             selectedCurrency = $(this).children("option:selected").text();
             selectedCurrencyValue = parseFloat($(this).children("option:selected").val()).toFixed(numberDecimalsK);
             selectedCurrencySymbol = $(this).children("option:selected").attr('symbol');
-            // console.log("-3: " +selectedCurrency);
-            // console.log("-2: " +selectedCurrencyValue);
-            // console.log("-1: " +selectedCurrencySymbol);
             $('#krokedilCurrency option[id = ' + defaultCurrencyK + ']').removeAttr('selected');
             $(this).children("option:selected").attr('selected', true);
             defaultCurrencyK = selectedCurrency;
             $('span.woocommerce-Price-amount').each(function(){
                 defaultCurrencyMount = parseFloat($(this).text().split(ThousandSeparatorSymbolK).join('')).toFixed(numberDecimalsK);
-                newCurrencyValue =  parseFloat(((defaultCurrencyMount / defaultCurrencyKValue) * selectedCurrencyValue).toString()).toFixed(numberDecimalsK);
-                // console.log("0: " + defaultCurrencyMount);
-                // console.log("0: " + newCurrencyValue);
+                var symbol = $(this).children('span.woocommerce-Price-currencySymbol').text();
+                selectedCurrencySymbol = decodeHTMLEntities(selectedCurrencySymbol);
+                if ( symbol === selectedCurrencySymbol) {
+                    newCurrencyValue =  parseFloat(((defaultCurrencyMount / 1) * selectedCurrencyValue).toString()).toFixed(numberDecimalsK);
+                } else {
+                    newCurrencyValue =  parseFloat(((defaultCurrencyMount / defaultCurrencyKValue) * selectedCurrencyValue).toString()).toFixed(numberDecimalsK);
+                }
                 newCurrencyValue = addThousand(newCurrencyValue, DecimalSeparatorSymbolK, numberDecimalsK);
-                // console.log("1: " + defaultCurrencyMount);
-                // console.log("2: " + defaultCurrencyKValue);
-                // console.log("3: " + selectedCurrencyValue);
-                // console.log("4: " + newCurrencyValue);
                 // newCurrencyValue =  parseFloat(newCurrencyValue).toFixed(numberDecimalsK);
                 $(this).replaceWith("<span class=\"woocommerce-Price-amount amount\">" + newCurrencyValue + "&nbsp;<span class=\"woocommerce-Price-currencySymbol\">" + selectedCurrencySymbol + "</span></span>");
             });
@@ -56,17 +54,19 @@ jQuery(function ($) {
             console.log("clicked");
         }
 
-        /* When the page loads */
+        /* When the page loads --------------------------------------------------------- */
         $('#krokedilCurrency option[id = ' + defaultCurrencyK + ']').attr('selected', true);
         $('span.woocommerce-Price-amount').each(function(){
-        // if ($('span.woocommerce-Price-currencySymbol') === defaultCurrencyK) {
-        //     return;
-        // }
-            // defaultCurrencyMount = parseFloat($(this).text().replace(ThousandSeparatorSymbolK, ''));
             defaultCurrencyMount = parseFloat($(this).text().split(ThousandSeparatorSymbolK).join('')).toFixed(numberDecimalsK);
-            // console.log(defaultCurrencyMount);
 
-            newCurrencyValue =  parseFloat((defaultCurrencyMount * defaultCurrencyKValue).toString()).toFixed(numberDecimalsK);
+            var symbol = $(this).children('span.woocommerce-Price-currencySymbol').text();
+            selectedCurrencySymbol = decodeHTMLEntities(selectedCurrencySymbol);
+            if ( symbol === selectedCurrencySymbol) {
+                newCurrencyValue =  parseFloat((defaultCurrencyMount * 1).toString()).toFixed(numberDecimalsK);
+            } else {
+                newCurrencyValue =  parseFloat((defaultCurrencyMount * defaultCurrencyKValue).toString()).toFixed(numberDecimalsK);
+            }
+            // defaultCurrencyMount = parseFloat($(this).text().replace(ThousandSeparatorSymbolK, ''));
             newCurrencyValue = addThousand(newCurrencyValue, DecimalSeparatorSymbolK, numberDecimalsK);
             $(this).replaceWith("<span class=\"woocommerce-Price-amount amount\">" + newCurrencyValue + "&nbsp;<span class=\"woocommerce-Price-currencySymbol\">" + selectedCurrencySymbol + "</span></span>");
 
@@ -74,33 +74,49 @@ jQuery(function ($) {
 
         });
 
-        function loaded2(){
+        /* Decode HTML-entities (is this case symbols) ---------------------------------------------------------  */
+        function decodeHTMLEntities(text) {
+            return $("<textarea/>")
+                .html(text)
+                .text();
+        }
+
+        /* Change currencies again ---------------------------------------------------------  */
+        function loadedAgain(){
             $('span.woocommerce-Price-amount').each(function(){
-                // console.log("rwer");
                 defaultCurrencyMount = parseFloat($(this).text().split(ThousandSeparatorSymbolK).join('')).toFixed(numberDecimalsK);
-                newCurrencyValue =  parseFloat((defaultCurrencyMount * defaultCurrencyKValue).toString()).toFixed(numberDecimalsK);
+                var symbol = $(this).children('span.woocommerce-Price-currencySymbol').text();
+                selectedCurrencySymbol = decodeHTMLEntities(selectedCurrencySymbol);
+                if ( symbol === selectedCurrencySymbol) {
+                    newCurrencyValue =  parseFloat((defaultCurrencyMount * 1).toString()).toFixed(numberDecimalsK);
+                    console.log("new1:" + newCurrencyValue);
+                    console.log("new1:" + symbol);
+
+                } else {
+                    newCurrencyValue =  parseFloat((defaultCurrencyMount * defaultCurrencyKValue).toString()).toFixed(numberDecimalsK);
+                    console.log("new2:" + newCurrencyValue);
+                    console.log("new2:" + defaultCurrencyKValue);
+                    console.log("new2:" + symbol);
+                }
                 newCurrencyValue = addThousand(newCurrencyValue, DecimalSeparatorSymbolK, numberDecimalsK);
-                // console.log("1: " + defaultCurrencyMount);
-                // console.log("2: " + newCurrencyValue);
-                // console.log("3: " + defaultCurrencyKValue);
-                console.log("4: " + selectedCurrencySymbol);
+                // newCurrencyValue =  parseFloat(newCurrencyValue).toFixed(numberDecimalsK);
                 $(this).replaceWith("<span class=\"woocommerce-Price-amount amount\">" + newCurrencyValue + "&nbsp;<span class=\"woocommerce-Price-currencySymbol\">" + selectedCurrencySymbol + "</span></span>");
+
             });
             console.log("applied_coupon");
         }
 
-        /* When user select a currency from dropdown */
+        /* When user select a currency from dropdown  --------------------------------------------------------- */
         $("#krokedilCurrency").change(changeCurrency);
 //updated_cart_totals removed_coupon removed_from_cart update_checkout updated_wc_div updated_shipping_method applied_coupon added_to_cart
         /* Update currencies for the cart, checkout  */
-        // $( document.body ).on( 'removed_from_cart', loaded2);
-        $( document.body ).on( 'added_to_cart', loaded2);
-        $( document.body ).on( 'removed_from_cart', loaded2);
-        $( document.body ).on( 'updated_checkout', loaded2);
-        $( document.body ).on( 'updated_wc_div', loaded2);
-        $( document.body ).on( 'updated_shipping_method', loaded2);
-        $( document.body ).on( 'applied_coupon', loaded2);
-        $( document.body ).on( 'removed_coupon', loaded2);
-        $( document.body ).on( 'updated_cart_totals', loaded2);
+        $( document.body ).on( 'added_to_cart', loadedAgain);
+        $( document.body ).on( 'removed_from_cart', loadedAgain);
+        $( document.body ).on( 'updated_checkout', loadedAgain);
+        $( document.body ).on( 'updated_wc_div', loadedAgain);
+        $( document.body ).on( 'updated_shipping_method', loadedAgain);
+        $( document.body ).on( 'applied_coupon', loadedAgain);
+        $( document.body ).on( 'removed_coupon', loadedAgain);
+        $( document.body ).on( 'updated_cart_totals', loadedAgain);
     });
 });

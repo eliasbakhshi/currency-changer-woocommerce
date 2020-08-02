@@ -26,8 +26,8 @@ if (!defined('ABSPATH')) {
 /* Check if WooCommerce is active */
 if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
 
-    session_start();
-    $_SESSION['usersCurrency'] = 'DKK';
+
+
 
 
     include_once 'custom-functions.php';
@@ -58,41 +58,14 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         /* Front end of the widget */
         public function widget($args, $instances)
         {
-            $defaultCurrencyK = $_SESSION['usersCurrency'];
+
+//
+//
+//
+            $defaultCurrencyK = 'DKK';
             $baseCurrencyK = get_woocommerce_currency();
             empty($defaultCurrencyK) ? $defaultCurrencyK = get_woocommerce_currency() : $defaultCurrencyK;
             $defaultCurrencyKSymbol = get_woocommerce_currency_symbol($baseCurrencyK);
-//            echo "old" . $defaultCurrencyK;
-            /* Change the currency before page loading */
-            add_action('init', function () use ($defaultCurrencyK) {
-                add_filter('woocommerce_currency', function ($currency) use ($defaultCurrencyK) {
-                    return $defaultCurrencyK;
-                    echo $defaultCurrencyK;
-                });
-            });
-
-//            echo "new" . get_woocommerce_currency();
-
-
-
-
-
-         /*   add_action( 'woocommerce_before_calculate_totals', 'add_custom_price' );
-
-            function add_custom_price( $cart_object ) {
-                var_dump($cart_object->cart_contents);
-                $custom_price = 5550000; // This will be your custome price
-                foreach ( $cart_object->cart_contents as $key => $value ) {
-                    $value['data']->price = $custom_price;
-//                    $value['data']->set_price($custom_price);
-                    // for WooCommerce version 3+ use:
-
-                }
-            }*/
-
-
-
-
 
             if ( !empty($instances) ) {
                 $allowedCurrencies = array();
@@ -100,7 +73,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $allowedCurrencies[] = $instance;
                 }
 
-                /* Add the base as well */
                 $allowedCurrenciesStr = implode(",", $allowedCurrencies);
 
                 $url = 'https://api.exchangeratesapi.io/latest?base=' . get_woocommerce_currency() . "&symbols=" . $allowedCurrenciesStr;
@@ -149,7 +121,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             return $old_instance;
         }
     }
-    add_action('widgets_init', function () {
+    add_action('widgets_init22', function () {
         register_widget('KCurrency');
     });
 

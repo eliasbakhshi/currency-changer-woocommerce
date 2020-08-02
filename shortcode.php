@@ -4,8 +4,9 @@ function kCurrencyChanger($attrs, $content = null) {
         'base'      => get_woocommerce_currency(),
         'symbols'    => ''
     ), $attrs, 'KCC' );
+
     $symbols = ( empty($attrs['symbols']) ) ? $content : $attrs['symbols'];
-    $defaultCurrencyK = $_SESSION['usersCurrency'];
+    $defaultCurrencyK = 'USD';
     if (empty($defaultCurrencyK)) { $defaultCurrencyK = get_woocommerce_currency(); };
 
     $url = 'https://api.exchangeratesapi.io/latest?base=' . $attrs['base'] . "&symbols=" . $attrs['base'] . "," . $content;
@@ -15,35 +16,44 @@ function kCurrencyChanger($attrs, $content = null) {
     /* Exit if we receive an error */
     if ($mainCurrencies['error']) { return $mainCurrencies['error']; }
 
+
+    /* Get value and show in the dropbox ---------------------------------------------- */
+    $defaultCurrencyValueK = $mainCurrencies['rates'][$defaultCurrencyK];
     $mainCurrencies['rates'] = $defaultCurrency + $mainCurrencies['rates'];
     print_r('<select id="krokedilCurrency">');
     foreach ($mainCurrencies['rates'] as $mainCurrency => $value) {
-        ($mainCurrency === $defaultCurrencyK) ? $selected = 'selected' : $selected = '';
+        ($mainCurrency === $defaultCurrencyK) ? $selected = 'selected="selected"' : $selected = '';
         $symbol = get_woocommerce_currency_symbol($mainCurrency);
-        printf('<option value="%s" id="%s" symbol="' . $symbol . '" selected="%s">%s</option>', $value, $mainCurrency, $selected, $mainCurrency);
+        printf('<option value="%s" id="%s" symbol="' . $symbol . '" %s>%s</option>', $value, $mainCurrency, $selected, $mainCurrency);
     }
     print_r('</select>');
-//    echo $defaultCurrencyK;
 
 
-
-
-
-    //--------------
 //    if (is_checkout()) {
-//           add_action( 'woocommerce_before_calculate_totals', 'add_custom_price' );
-//
-//            function add_custom_price( $cart_object ) {
-//                var_dump($cart_object->cart_contents);
-//                $custom_price = 2; // This will be your custome price
-//                foreach ( $cart_object->cart_contents as $key => $value ) {
-//                    $value['data']->price = $custom_price;
-//                    $value['data']->set_price($custom_price);
-//                     for WooCommerce version 3+ use:
-//
-//                }
-//            }
-//        }
+        /* Set default currency ------------------------------------------------------------ */
+        add_filter('woocommerce_currency', function ($currency) use ($defaultCurrencyK) {
+            return $defaultCurrencyK;
+        });
+//    }
+
+
+
+    /*add_action( 'woocommerce_review_order_before_order_total', 'custom_cart_total' );
+    add_action( 'woocommerce_before_cart_totals', 'custom_cart_total' );
+    function custom_cart_total() {
+        global $woocommerce;
+
+        if ( is_admin() && ! defined( 'DOING_AJAX' ) )
+            return;
+        $woocommerce->cart->total  = $woocommerce->cart->total*0.25;
+        var_dump( $woocommerce->cart->total);
+
+
+        WC()->cart->total *= 0.5;
+//        var_dump( WC()->cart->total);
+    }*/
+
+
 
 
 
