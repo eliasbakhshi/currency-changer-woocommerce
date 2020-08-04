@@ -25,105 +25,74 @@ if (!defined('ABSPATH')) {
 
 /* Check if WooCommerce is active */
 if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
-
-
-
-
-
     include_once 'custom-functions.php';
     include_once 'shortcode.php';
+    include_once 'widget.php';
 
 
-
-    class KCurrency extends WP_Widget {
-        public function __construct(){
-            $currenyArgs = array(
-                'classname' => 'krokedil-currency',
-                'description' => 'Krokedil Currency Changer'
-            );
-            parent::__construct( 'krokedil_currency', 'krokedil Currency Changer', $currenyArgs);
-        }
-
-        /* Back end of the widget */
-        public function form($instance){
-            $formCurrencies = fetchInArray('https://api.exchangeratesapi.io/latest');
-            foreach ( $formCurrencies['rates'] as $rate => $value ) {
-                printf('<span style="width: 20%%; display: inline-block;">
-                            <input type="checkbox" name="' . $this->get_field_name($rate) . '" id="' . $this->get_field_id($rate) . '" %s>
-                            <label for="' . $this->get_field_id($rate) . '">' . $rate . '</label>
-                        </span>', checked($instance[$rate], 'on', false));
-            }
-        }
-
-        /* Front end of the widget */
-        public function widget($args, $instances)
-        {
-
-//
-//
-//
-            $defaultCurrencyK = 'DKK';
-            $baseCurrencyK = get_woocommerce_currency();
-            empty($defaultCurrencyK) ? $defaultCurrencyK = get_woocommerce_currency() : $defaultCurrencyK;
-            $defaultCurrencyKSymbol = get_woocommerce_currency_symbol($baseCurrencyK);
-
-            if ( !empty($instances) ) {
-                $allowedCurrencies = array();
-                foreach ($instances as $instance => $value) {
-                    $allowedCurrencies[] = $instance;
-                }
-
-                $allowedCurrenciesStr = implode(",", $allowedCurrencies);
-
-                $url = 'https://api.exchangeratesapi.io/latest?base=' . get_woocommerce_currency() . "&symbols=" . $allowedCurrenciesStr;
-                $mainCurrencies = fetchInArray($url);
-                /* Exit if we receive an error */
-                if ($mainCurrencies['error']) { return $mainCurrencies['error']; }
-
-                /* Add the base to the array */
-                $defaultCurrency = [get_woocommerce_currency() => 1];
-                $mainCurrencies['rates'] = $defaultCurrency + $mainCurrencies['rates'];
-
-                /* Show currencies to user */
-                print_r('<select id="krokedilCurrency">');
-                foreach ($mainCurrencies['rates'] as $mainCurrency => $value) {
-                    $symbol = get_woocommerce_currency_symbol($mainCurrency);
-                    printf('<option value="%s" id="%s" symbol="' . $symbol . '">%s</option>', $value, $mainCurrency, $mainCurrency);
-                }
-                print_r('</select>');
-                /* Pass the info to the script */
-                if ($defaultCurrencyK) {
-                    $defaultCurrencyKSymbol = get_woocommerce_currency_symbol($defaultCurrencyK);
-                } else {
-                    $defaultCurrencyK = get_woocommerce_currency();
-                    $defaultCurrencyKSymbol = get_woocommerce_currency_symbol($defaultCurrencyK);
-                }
-                /* Sent the current currency and currency symbol to the jquery file */
-                printf("<script type='text/javascript'>
-                    var defaultCurrencyK = '%s';
-                    var defaultCurrencyKValue = '%s';
-                    var defaultCurrencyKSymbol = '%s';
-                    var currencyAllSymbols = '%s';
-                    var numberDecimalsK = '%s';
-                    var DecimalSeparatorSymbolK = '%s';
-                    var ThousandSeparatorSymbolK = '%s';
-                    </script>", $defaultCurrencyK, $mainCurrencies['rates'][$defaultCurrencyK], $defaultCurrencyKSymbol, get_woocommerce_currency_symbols(), wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator());
-
-
-            } else {
-                printf('<p>There is no currency to choose.</p>');
-            }
-        }
-
-        /* When user clicks the save button in the widgets page */
-        public function update($new_instance, $old_instance) {
-            $old_instance = $new_instance;
-            return $old_instance;
-        }
+    // Makes reapetition
+    /*function filter_woocommerce_get_regular_price2( $price2, $product ) {
+        echo $price2 . "ttt";
+        return $price2;
     }
-    add_action('widgets_init22', function () {
-        register_widget('KCurrency');
-    });
+    add_filter( 'woocommerce_get_regular_price', 'filter_woocommerce_get_regular_price2', 71, 2 );
+    add_filter( 'woocommerce_product_get_regular_price', 'filter_woocommerce_get_regular_price2', 72, 2 );*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // This add just new price for the product and display it in the page
+    /*add_filter('woocommerce_get_price', 'woocommerce_change_by_currency', 10, 2);
+    function woocommerce_change_by_currency($price, $product) {
+        global $post;
+        $post_id = $post->ID;
+
+        $product = WC_get_product($post_id);
+
+        $price = ( $price + 100);
+
+        return $price;
+    }*/
+
+
+
+
+
+/*//------------------------------------------------------ this words just in checkout table and not in invoices
+    add_action( 'woocommerce_review_order_before_order_total', 'custom_cart_total' );
+    add_action( 'woocommerce_before_cart_totals', 'custom_cart_total' );
+    function custom_cart_total() {
+
+        if ( is_admin() && ! defined( 'DOING_AJAX' ) )
+            return;
+
+        WC()->cart->total *= 0.5;
+        var_dump( WC()->cart->total);
+    }*/
+
+
+// this is for cart payment because they use order->get_total to fetch cart grand total --------------
+    /*add_filter( 'woocommerce_order_amount_total', 'custom_cart_total2' );
+    function custom_cart_total2($order_total) {
+        return $order_total *= 0.25;
+    }*/
+
+
+
+
+
+
+
+
 
 
 }

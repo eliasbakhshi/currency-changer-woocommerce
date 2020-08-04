@@ -1,25 +1,20 @@
 <?php
 function kCurrencyChanger($attrs, $content = null) {
     $attrs = shortcode_atts( array(
-        'base'      => get_woocommerce_currency(),
+//        'base'      => get_woocommerce_currency(), // Delete the base later and symbol if you want
         'symbols'    => ''
     ), $attrs, 'KCC' );
 
-    $symbols = ( empty($attrs['symbols']) ) ? $content : $attrs['symbols'];
-    $defaultCurrencyK = 'USD';
+    $currencies = ( empty($attrs['symbols']) ) ? $content : $attrs['symbols'];
     if (empty($defaultCurrencyK)) { $defaultCurrencyK = get_woocommerce_currency(); };
-
-    $url = 'https://api.exchangeratesapi.io/latest?base=' . $attrs['base'] . "&symbols=" . $attrs['base'] . "," . $content;
-//    return $url;
+    $systemsCurrency = 'SEK';
+    $url = 'https://api.exchangeratesapi.io/latest?base=' . $systemsCurrency . "&symbols=" . $systemsCurrency . "," . $currencies;
     $mainCurrencies = fetchInArray($url);
-    $defaultCurrency = [get_woocommerce_currency() => 1];
+
     /* Exit if we receive an error */
     if ($mainCurrencies['error']) { return $mainCurrencies['error']; }
 
-
-    /* Get value and show in the dropbox ---------------------------------------------- */
-    $defaultCurrencyValueK = $mainCurrencies['rates'][$defaultCurrencyK];
-    $mainCurrencies['rates'] = $defaultCurrency + $mainCurrencies['rates'];
+    /* ---- Get value and show in the dropbox ---- */
     print_r('<select id="krokedilCurrency">');
     foreach ($mainCurrencies['rates'] as $mainCurrency => $value) {
         ($mainCurrency === $defaultCurrencyK) ? $selected = 'selected="selected"' : $selected = '';
@@ -27,35 +22,6 @@ function kCurrencyChanger($attrs, $content = null) {
         printf('<option value="%s" id="%s" symbol="' . $symbol . '" %s>%s</option>', $value, $mainCurrency, $selected, $mainCurrency);
     }
     print_r('</select>');
-
-
-//    if (is_checkout()) {
-        /* Set default currency ------------------------------------------------------------ */
-        add_filter('woocommerce_currency', function ($currency) use ($defaultCurrencyK) {
-            return $defaultCurrencyK;
-        });
-//    }
-
-
-
-    /*add_action( 'woocommerce_review_order_before_order_total', 'custom_cart_total' );
-    add_action( 'woocommerce_before_cart_totals', 'custom_cart_total' );
-    function custom_cart_total() {
-        global $woocommerce;
-
-        if ( is_admin() && ! defined( 'DOING_AJAX' ) )
-            return;
-        $woocommerce->cart->total  = $woocommerce->cart->total*0.25;
-        var_dump( $woocommerce->cart->total);
-
-
-        WC()->cart->total *= 0.5;
-//        var_dump( WC()->cart->total);
-    }*/
-
-
-
-
 
     if ($defaultCurrencyK) {
         $defaultCurrencyKSymbol = get_woocommerce_currency_symbol($defaultCurrencyK);
