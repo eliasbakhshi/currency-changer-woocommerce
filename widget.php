@@ -1,4 +1,7 @@
 <?php
+/* Close the direct access */
+if ( ! defined( 'ABSPATH' ) ) { exit; }
+
 class KCurrency extends WP_Widget {
     public function __construct(){
         $currenyArgs = array(
@@ -22,8 +25,9 @@ class KCurrency extends WP_Widget {
     /* Front end of the widget */
     public function widget($args, $instances) {
         $baseCurrencyK = get_woocommerce_currency();
-        empty($defaultCurrencyK) ? $defaultCurrencyK = get_woocommerce_currency() : $defaultCurrencyK;
+        $defaultCurrencyK = $_COOKIE['usersCurrency'];
         $defaultCurrencyKSymbol = get_woocommerce_currency_symbol($baseCurrencyK);
+        $mainCurrencies = get_transient('lastHour');
 
         if ( !empty($instances) ) {
             $allowedCurrencies = array();
@@ -33,22 +37,34 @@ class KCurrency extends WP_Widget {
 
             $allowedCurrenciesStr = implode(",", $allowedCurrencies);
 
-            $url = 'https://api.exchangeratesapi.io/latest?base=' . get_woocommerce_currency() . "&symbols=" . $allowedCurrenciesStr;
-            $mainCurrencies = fetchInArray($url);
+//            $url = 'https://api.exchangeratesapi.io/latest?base=' . get_woocommerce_currency() . "&symbols=" . $allowedCurrenciesStr;
+//            $mainCurrencies = fetchInArray($url);
+
             /* Exit if we receive an error */
             if ($mainCurrencies['error']) { return $mainCurrencies['error']; }
 
             /* Add the base to the array */
-            $defaultCurrency = [get_woocommerce_currency() => 1];
-            $mainCurrencies['rates'] = $defaultCurrency + $mainCurrencies['rates'];
+//            $defaultCurrency = [get_woocommerce_currency() => 1];
+//            $mainCurrencies['rates'] = $defaultCurrency + $mainCurrencies['rates'];
+
+            $CurrenciesToShow = [];
+            foreach ( $allowedCurrencies as $allowedCurrency ) {
+                foreach ( $mainCurrencies['rates'] as $mainCurrency => $mainCurrencyValue ) {
+                    if ( $allowedCurrency === $mainCurrency ) {
+                        $CurrenciesToShow[$mainCurrency] = $mainCurrencyValue;
+                    }
+                }
+            }
 
             /* Show currencies to user */
             print_r('<select id="krokedilCurrency">');
-            foreach ($mainCurrencies['rates'] as $mainCurrency => $value) {
+            foreach ($CurrenciesToShow as $mainCurrency => $value) {
+                ($mainCurrency === $defaultCurrencyK) ? $selected = 'selected="selected"' : $selected = '';
                 $symbol = get_woocommerce_currency_symbol($mainCurrency);
-                printf('<option value="%s" id="%s" symbol="' . $symbol . '">%s</option>', $value, $mainCurrency, $mainCurrency);
+                printf('<option value="%s" id="%s" symbol="' . $symbol . '" %s>'.__("%s").'</option>', $value, $mainCurrency, $selected, $mainCurrency);
             }
             print_r('</select>');
+
             /* Pass the info to the script */
             if ($defaultCurrencyK) {
                 $defaultCurrencyKSymbol = get_woocommerce_currency_symbol($defaultCurrencyK);
@@ -78,6 +94,6 @@ class KCurrency extends WP_Widget {
         return $old_instance;
     }
 }
-add_action('widgets_init22', function () {
-    register_widget('KCurrency2');
+add_action('widgets_init', function () {
+    register_widget('KCurrency');
 });

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin Name: Krokedil Currency Changer
  * Plugin URI: http://woocommerce.com/products/woocommerce-extension/
@@ -23,20 +22,18 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+
 /* Check if WooCommerce is active */
 if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
+
+
     include_once 'custom-functions.php';
+    include_once 'initialization.php';
     include_once 'shortcode.php';
     include_once 'widget.php';
 
 
-    // Makes reapetition
-    /*function filter_woocommerce_get_regular_price2( $price2, $product ) {
-        echo $price2 . "ttt";
-        return $price2;
-    }
-    add_filter( 'woocommerce_get_regular_price', 'filter_woocommerce_get_regular_price2', 71, 2 );
-    add_filter( 'woocommerce_product_get_regular_price', 'filter_woocommerce_get_regular_price2', 72, 2 );*/
+
 
 
 

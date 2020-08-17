@@ -8,6 +8,7 @@ jQuery(function ($) {
         // numberDecimalsK
         // DecimalSeparatorSymbolK
         // ThousandSeparatorSymbolK
+        // pluginURL
         // *********
         // var baseCurrencyValue = 1;
         var defaultCurrencyMount = 0;
@@ -29,13 +30,48 @@ jQuery(function ($) {
             return output;
         }
 
-        /* When user choose a currency  --------------------------------------------------------- */
+        /* ---- Set cookies ---- */
+        function setCookie(cname, cvalue, exdays) {
+            var d = new Date();
+            d.setTime(d.getTime() + (exdays*24*60*60*1000));
+            var expires = "expires="+ d.toUTCString();
+            document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+        }
+
+        /* ---- Get cookies ---- */
+        function getCookie(cname) {
+            var name = cname + "=";
+            var decodedCookie = decodeURIComponent(document.cookie);
+            var ca = decodedCookie.split(';');
+            for(var i = 0; i <ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        /* ---- When user choose a currency ---- */
         function changeCurrency() {
+            console.log($(this).attr('id'));
+
+
+
+
+
+
+            // get id of both and change both of drop boxes
+
+
             selectedCurrency = $(this).children("option:selected").text();
             selectedCurrencyValue = parseFloat($(this).children("option:selected").val()).toFixed(numberDecimalsK);
             selectedCurrencySymbol = $(this).children("option:selected").attr('symbol');
             $('#krokedilCurrency option[id = ' + defaultCurrencyK + ']').removeAttr('selected');
-            $(this).children("option:selected").attr('selected', true);
+            $(this).children('option:selected').attr('selected', true);
             defaultCurrencyK = selectedCurrency;
             $('span.woocommerce-Price-amount').each(function(){
                 defaultCurrencyMount = parseFloat($(this).text().split(ThousandSeparatorSymbolK).join('')).toFixed(numberDecimalsK);
@@ -51,10 +87,10 @@ jQuery(function ($) {
                 $(this).replaceWith("<span class=\"woocommerce-Price-amount amount\">" + newCurrencyValue + "&nbsp;<span class=\"woocommerce-Price-currencySymbol\">" + selectedCurrencySymbol + "</span></span>");
             });
             defaultCurrencyKValue = selectedCurrencyValue;
-            console.log("clicked");
+            setCookie('usersCurrency', selectedCurrency, 365);
         }
 
-        /* When the page loads --------------------------------------------------------- */
+        /* ---- When the page loads ---- */
         $('#krokedilCurrency option[id = ' + defaultCurrencyK + ']').attr('selected', true);
         $('span.woocommerce-Price-amount').each(function(){
             defaultCurrencyMount = parseFloat($(this).text().split(ThousandSeparatorSymbolK).join('')).toFixed(numberDecimalsK);
@@ -69,19 +105,16 @@ jQuery(function ($) {
             // defaultCurrencyMount = parseFloat($(this).text().replace(ThousandSeparatorSymbolK, ''));
             newCurrencyValue = addThousand(newCurrencyValue, DecimalSeparatorSymbolK, numberDecimalsK);
             $(this).replaceWith("<span class=\"woocommerce-Price-amount amount\">" + newCurrencyValue + "&nbsp;<span class=\"woocommerce-Price-currencySymbol\">" + selectedCurrencySymbol + "</span></span>");
-
-            console.log("loaded");
-
         });
 
-        /* Decode HTML-entities (is this case symbols) ---------------------------------------------------------  */
+        /* ---- Decode HTML-entities (is this case symbols) ---- */
         function decodeHTMLEntities(text) {
             return $("<textarea/>")
                 .html(text)
                 .text();
         }
 
-        /* Change currencies again ---------------------------------------------------------  */
+        /* ---- Change currencies again ---- */
         function loadedAgain(){
             $('span.woocommerce-Price-amount').each(function(){
                 defaultCurrencyMount = parseFloat($(this).text().split(ThousandSeparatorSymbolK).join('')).toFixed(numberDecimalsK);
@@ -89,27 +122,25 @@ jQuery(function ($) {
                 selectedCurrencySymbol = decodeHTMLEntities(selectedCurrencySymbol);
                 if ( symbol === selectedCurrencySymbol) {
                     newCurrencyValue =  parseFloat((defaultCurrencyMount * 1).toString()).toFixed(numberDecimalsK);
-                    console.log("new1:" + newCurrencyValue);
-                    console.log("new1:" + symbol);
+                    // console.log("new1:" + newCurrencyValue);
+                    // console.log("new1:" + symbol);
 
                 } else {
                     newCurrencyValue =  parseFloat((defaultCurrencyMount * defaultCurrencyKValue).toString()).toFixed(numberDecimalsK);
-                    console.log("new2:" + newCurrencyValue);
-                    console.log("new2:" + defaultCurrencyKValue);
-                    console.log("new2:" + symbol);
+                    // console.log("new2:" + newCurrencyValue);
+                    // console.log("new2:" + defaultCurrencyKValue);
+                    // console.log("new2:" + symbol);
                 }
                 newCurrencyValue = addThousand(newCurrencyValue, DecimalSeparatorSymbolK, numberDecimalsK);
                 // newCurrencyValue =  parseFloat(newCurrencyValue).toFixed(numberDecimalsK);
                 $(this).replaceWith("<span class=\"woocommerce-Price-amount amount\">" + newCurrencyValue + "&nbsp;<span class=\"woocommerce-Price-currencySymbol\">" + selectedCurrencySymbol + "</span></span>");
-
             });
-            console.log("applied_coupon");
         }
 
-        /* When user select a currency from dropdown  --------------------------------------------------------- */
+        /* ---- When user select a currency from dropdown ---- */
         $("#krokedilCurrency").change(changeCurrency);
-//updated_cart_totals removed_coupon removed_from_cart update_checkout updated_wc_div updated_shipping_method applied_coupon added_to_cart
-        /* Update currencies for the cart, checkout  */
+
+        /* ---- Update currencies for the cart, checkout ---- */
         $( document.body ).on( 'added_to_cart', loadedAgain);
         $( document.body ).on( 'removed_from_cart', loadedAgain);
         $( document.body ).on( 'updated_checkout', loadedAgain);
@@ -120,3 +151,4 @@ jQuery(function ($) {
         $( document.body ).on( 'updated_cart_totals', loadedAgain);
     });
 });
+
