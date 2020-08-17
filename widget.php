@@ -13,9 +13,9 @@ class KCurrency extends WP_Widget {
 
     /* Back end of the widget */
     public function form($instance){
-        $formCurrencies = fetchInArray('https://api.exchangeratesapi.io/latest');
+        $formCurrencies = get_transient('lastHour');
         foreach ( $formCurrencies['rates'] as $rate => $value ) {
-            printf('<span style="width: 20%%; display: inline-block;">
+            printf('<span class="currency" style="width: 33%%; display: inline-block;">
                             <input type="checkbox" name="' . $this->get_field_name($rate) . '" id="' . $this->get_field_id($rate) . '" %s>
                             <label for="' . $this->get_field_id($rate) . '">' . $rate . '</label>
                         </span>', checked($instance[$rate], 'on', false));
@@ -35,17 +35,8 @@ class KCurrency extends WP_Widget {
                 $allowedCurrencies[] = $instance;
             }
 
-            $allowedCurrenciesStr = implode(",", $allowedCurrencies);
-
-//            $url = 'https://api.exchangeratesapi.io/latest?base=' . get_woocommerce_currency() . "&symbols=" . $allowedCurrenciesStr;
-//            $mainCurrencies = fetchInArray($url);
-
             /* Exit if we receive an error */
             if ($mainCurrencies['error']) { return $mainCurrencies['error']; }
-
-            /* Add the base to the array */
-//            $defaultCurrency = [get_woocommerce_currency() => 1];
-//            $mainCurrencies['rates'] = $defaultCurrency + $mainCurrencies['rates'];
 
             $CurrenciesToShow = [];
             foreach ( $allowedCurrencies as $allowedCurrency ) {
@@ -57,7 +48,7 @@ class KCurrency extends WP_Widget {
             }
 
             /* Show currencies to user */
-            print_r('<select id="krokedilCurrency">');
+            print_r('<select id="krokedilCurrencyWidget" style="width: 100%">');
             foreach ($CurrenciesToShow as $mainCurrency => $value) {
                 ($mainCurrency === $defaultCurrencyK) ? $selected = 'selected="selected"' : $selected = '';
                 $symbol = get_woocommerce_currency_symbol($mainCurrency);
@@ -77,11 +68,10 @@ class KCurrency extends WP_Widget {
                     var defaultCurrencyK = '%s';
                     var defaultCurrencyKValue = '%s';
                     var defaultCurrencyKSymbol = '%s';
-                    var currencyAllSymbols = '%s';
                     var numberDecimalsK = '%s';
                     var DecimalSeparatorSymbolK = '%s';
                     var ThousandSeparatorSymbolK = '%s';
-                    </script>", $defaultCurrencyK, $mainCurrencies['rates'][$defaultCurrencyK], $defaultCurrencyKSymbol, get_woocommerce_currency_symbols(), wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator());
+                    </script>", $defaultCurrencyK, $mainCurrencies['rates'][$defaultCurrencyK], $defaultCurrencyKSymbol, wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator());
 
         } else {
             printf('<p>There is no currency to choose.</p>');

@@ -22,74 +22,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-
 /* Check if WooCommerce is active */
 if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
-
-
     include_once 'custom-functions.php';
     include_once 'initialization.php';
     include_once 'shortcode.php';
     include_once 'widget.php';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // This add just new price for the product and display it in the page
-    /*add_filter('woocommerce_get_price', 'woocommerce_change_by_currency', 10, 2);
-    function woocommerce_change_by_currency($price, $product) {
-        global $post;
-        $post_id = $post->ID;
-
-        $product = WC_get_product($post_id);
-
-        $price = ( $price + 100);
-
-        return $price;
-    }*/
-
-
-
-
-
-/*//------------------------------------------------------ this words just in checkout table and not in invoices
-    add_action( 'woocommerce_review_order_before_order_total', 'custom_cart_total' );
-    add_action( 'woocommerce_before_cart_totals', 'custom_cart_total' );
-    function custom_cart_total() {
-
-        if ( is_admin() && ! defined( 'DOING_AJAX' ) )
-            return;
-
-        WC()->cart->total *= 0.5;
-        var_dump( WC()->cart->total);
-    }*/
-
-
-// this is for cart payment because they use order->get_total to fetch cart grand total --------------
-    /*add_filter( 'woocommerce_order_amount_total', 'custom_cart_total2' );
-    function custom_cart_total2($order_total) {
-        return $order_total *= 0.25;
-    }*/
-
-
-
-
-
-
-
-
-
-
 }

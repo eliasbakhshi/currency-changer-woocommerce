@@ -29,11 +29,11 @@ function kCurrencyChanger($attrs, $content = null) {
     }
 
     /* ---- Get value and show in the dropbox ---- */
-    print_r('<select id="krokedilCurrency">');
+    print_r('<select id="krokedilCurrencyShortcode" style="width: 100%; max-width: 200px;">');
     foreach ($CurrenciesToShow as $mainCurrency => $value) {
         ($mainCurrency === $defaultCurrencyK) ? $selected = 'selected="selected"' : $selected = '';
         $symbol = get_woocommerce_currency_symbol($mainCurrency);
-        printf('<option value="%s" id="%s" symbol="' . $symbol . '" %s>'.__("%s").'</option>', $value, $mainCurrency, $selected, $mainCurrency);
+        printf('<img src="coffee.png" width="10" height="10"><option value="%s" id="%s" symbol="' . $symbol . '" %s>'.__("%s").'</option>', $value, $mainCurrency, $selected, $mainCurrency);
     }
     print_r('</select>');
 
@@ -44,19 +44,15 @@ function kCurrencyChanger($attrs, $content = null) {
         $defaultCurrencyKSymbol = get_woocommerce_currency_symbol($defaultCurrencyK);
     }
 
-    $pluginDIR =  str_replace('\\', '/', plugin_dir_path( __FILE__ ));
-
     /* Sent the current currency and currency symbol to the jquery file */
     printf("<script type='text/javascript'>
                 var defaultCurrencyK = '%s';
                 var defaultCurrencyKValue = '%s';
                 var defaultCurrencyKSymbol = '%s';
-                var currencyAllSymbols = '%s';
                 var numberDecimalsK = '%s';
                 var DecimalSeparatorSymbolK = '%s';
                 var ThousandSeparatorSymbolK = '%s';
-            </script>", $defaultCurrencyK, $mainCurrencies['rates'][$defaultCurrencyK], $defaultCurrencyKSymbol, get_woocommerce_currency_symbols(), wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator());
-
+            </script>", $defaultCurrencyK, $mainCurrencies['rates'][$defaultCurrencyK], $defaultCurrencyKSymbol,  wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator());
 }
 
 add_shortcode('KCC', 'kCurrencyChanger');

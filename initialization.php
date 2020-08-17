@@ -2,36 +2,33 @@
 /* Close the direct access */
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-
-
 $systemsCurrency = get_option('woocommerce_currency');
 
 // get the user's currency
 if ( isset($_COOKIE['usersCurrency']) ) {
     $usersCurrency = wp_strip_all_tags($_COOKIE['usersCurrency']);
-//    echo "1";
 } else {
     $usersCurrency = $systemsCurrency;
     setcookie('usersCurrency', $systemsCurrency, time() + (86400 * 365), '/' );
-//    echo "2";
 }
 
 /* ----- Change the currency before page loading ----- */
-if ( !empty($usersCurrency)) {
-    add_action('init', function () use ($usersCurrency) {
-        add_filter('woocommerce_currency', function ($currency) use ($usersCurrency) {
-            return $usersCurrency;
+if ( !is_admin() ) {
+    if ( !empty($usersCurrency)) {
+        add_action('init', function () use ($usersCurrency) {
+            add_filter('woocommerce_currency', function ($currency) use ($usersCurrency) {
+                return $usersCurrency;
+            });
         });
-    });
-//    echo "3";
-} else {
-    add_action('init', function () use ($systemsCurrency) {
-        add_filter('woocommerce_currency', function ($currency) use ($systemsCurrency) {
-            return $systemsCurrency;
+    } else {
+        add_action('init', function () use ($systemsCurrency) {
+            add_filter('woocommerce_currency', function ($currency) use ($systemsCurrency) {
+                return $systemsCurrency;
+            });
         });
-    });
-//    echo "4";
+    }
 }
+
 
 /* Fetch currencies for max the last hour */
 if ( get_transient('lastHour') === false ) {
